@@ -63,7 +63,7 @@ resale_price_net = resale_price * (1 - sale_commission_rate / 100)
 # Build cash flows
 initial_equity = purchase_price * (1 - mortgage_percent / 100)
 loan_amount = purchase_price * (mortgage_percent / 100)
-annual_loan_payment = (loan_amount * loan_interest_rate / 100) / (1 - (1 + loan_interest_rate / 100) ** (-loan_repayment_term))
+annual_loan_payment = (loan_amount / loan_repayment_term)
 
 cash_flows = [-initial_equity - loan_arrangement_fee]
 cf_table = [{"Year": 0, "Revenue (USD)": 0, "Opex (USD)": 0, "Loan Installment (USD)": 0, "Interest Payment (USD)": 0, "Remaining Loan (USD)": loan_amount, "Cash Flow (USD)": -initial_equity - loan_arrangement_fee, "Notes": "Equity + Loan Fee"}]
