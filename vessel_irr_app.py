@@ -66,9 +66,10 @@ loan_amount = purchase_price * (mortgage_percent / 100)
 annual_loan_payment = (loan_amount * loan_interest_rate / 100) / (1 - (1 + loan_interest_rate / 100) ** (-loan_repayment_term))
 
 cash_flows = [-initial_equity - loan_arrangement_fee]
-cf_table = [{"Year": 0, "Cash Flow (USD)": -initial_equity - loan_arrangement_fee, "Opex (USD)": 0, "Loan Installment (USD)": 0, "Notes": "Equity + Loan Fee"}]
+cf_table = [{"Year": 0, "Revenue (USD)": 0, "Opex (USD)": 0, "Loan Installment (USD)": 0, "Interest Payment (USD)": 0, "Remaining Loan (USD)": loan_amount, "Cash Flow (USD)": -initial_equity - loan_arrangement_fee, "Notes": "Equity + Loan Fee"}]
 
 opex = opex_day * 365
+remaining_loan = loan_amount
 for year in range(1, investment_term + 1):
     if year <= 3:
         earnings = earn_years_1_3 * 365
@@ -79,12 +80,15 @@ for year in range(1, investment_term + 1):
 
     opex_year = opex
     loan_payment_year = annual_loan_payment if year <= loan_repayment_term else 0
+    interest_payment = remaining_loan * loan_interest_rate / 100 if year <= loan_repayment_term else 0
 
     net_cash = earnings - opex_year - loan_payment_year
     note = "Earnings - Opex"
 
     if loan_payment_year > 0:
         note += " - Loan Payment"
+        principal_payment = loan_payment_year - interest_payment
+        remaining_loan -= principal_payment
 
     if dd_year == year and dd_cost > 0:
         net_cash -= dd_cost
@@ -94,8 +98,21 @@ for year in range(1, investment_term + 1):
         net_cash += resale_price_net
         note += " + Net Resale Value"
 
+        if remaining_loan > 0:
+            net_cash -= remaining_loan
+            note += " - Remaining Loan Payoff"
+
     cash_flows.append(net_cash)
-    cf_table.append({"Year": year, "Cash Flow (USD)": net_cash, "Opex (USD)": opex_year, "Loan Installment (USD)": loan_payment_year, "Notes": note})
+    cf_table.append({
+        "Year": year,
+        "Revenue (USD)": earnings,
+        "Opex (USD)": opex_year,
+        "Loan Installment (USD)": loan_payment_year,
+        "Interest Payment (USD)": interest_payment,
+        "Remaining Loan (USD)": remaining_loan,
+        "Cash Flow (USD)": net_cash,
+        "Notes": note
+    })
 
     opex *= (1 + opex_growth / 100)
 
