@@ -111,7 +111,7 @@ for year in range(1, investment_term + 1):
         "Year": year,
         "Revenue (USD)": earnings,
         "Opex (USD)": opex_year,
-        "Loan Installment (USD)": loan_payment_year,
+        "Loan Installment (USD)": principal_payment_per_year,
         "Interest Payment (USD)": interest_payment,
         "Remaining Loan (USD)": max(remaining_loan, 0),
         "Cash Flow (USD)": net_cash,
