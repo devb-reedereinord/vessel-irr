@@ -47,7 +47,7 @@ three_yr_tc = st.sidebar.number_input("3yr TC at Sale Year (USD/day)", min_value
 mortgage_percent = st.sidebar.number_input("Mortgage Percentage (%)", min_value=0.0, max_value=100.0, value=60.0)
 loan_interest_rate = st.sidebar.number_input("Loan Interest Rate (% per year)", min_value=0.0, value=5.0)
 loan_arrangement_fee = st.sidebar.number_input("Loan Arrangement Fee (USD)", min_value=0, value=100000)
-loan_repayment_term = st.sidebar.number_input("Loan Repayment Time (Years)", min_value=1, max_value=10, value=5)
+loan_repayment_term = st.sidebar.number_input("Loan Repayment Time (Years)", min_value=1, value=5)
 sale_commission_rate = 1.0  # 1% sale commission
 
 # Earnings inputs
