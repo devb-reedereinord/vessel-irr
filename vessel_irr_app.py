@@ -66,7 +66,7 @@ loan_amount = purchase_price * (mortgage_percent / 100)
 annual_loan_payment = (loan_amount * loan_interest_rate / 100) / (1 - (1 + loan_interest_rate / 100) ** (-loan_repayment_term))
 
 cash_flows = [-initial_equity - loan_arrangement_fee]
-cf_table = [{"Year": 0, "Cash Flow (USD)": -initial_equity - loan_arrangement_fee, "Notes": "Equity + Loan Fee"}]
+cf_table = [{"Year": 0, "Cash Flow (USD)": -initial_equity - loan_arrangement_fee, "Opex (USD)": 0, "Loan Installment (USD)": 0, "Notes": "Equity + Loan Fee"}]
 
 opex = opex_day * 365
 for year in range(1, investment_term + 1):
@@ -77,28 +77,26 @@ for year in range(1, investment_term + 1):
     else:
         earnings = earn_years_6_10 * 365
 
-    net_cash = earnings - opex
+    opex_year = opex
+    loan_payment_year = annual_loan_payment if year <= loan_repayment_term else 0
+
+    net_cash = earnings - opex_year - loan_payment_year
     note = "Earnings - Opex"
 
-    # Deduct loan payment if within loan term
-    if year <= loan_repayment_term:
-        net_cash -= annual_loan_payment
+    if loan_payment_year > 0:
         note += " - Loan Payment"
 
-    # Deduct DD cost if this is the DD year
     if dd_year == year and dd_cost > 0:
         net_cash -= dd_cost
         note += " - DD Cost"
 
-    # Add net resale price in final year
     if year == investment_term:
         net_cash += resale_price_net
         note += " + Net Resale Value"
 
     cash_flows.append(net_cash)
-    cf_table.append({"Year": year, "Cash Flow (USD)": net_cash, "Notes": note})
+    cf_table.append({"Year": year, "Cash Flow (USD)": net_cash, "Opex (USD)": opex_year, "Loan Installment (USD)": loan_payment_year, "Notes": note})
 
-    # Increase opex for next year
     opex *= (1 + opex_growth / 100)
 
 # Calculate IRR
