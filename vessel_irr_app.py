@@ -63,7 +63,7 @@ resale_price_net = resale_price * (1 - sale_commission_rate / 100)
 # Build cash flows
 initial_equity = purchase_price * (1 - mortgage_percent / 100)
 loan_amount = purchase_price * (mortgage_percent / 100)
-annual_loan_payment = (loan_amount / loan_repayment_term)
+principal_payment_per_year = loan_amount / loan_repayment_term
 
 cash_flows = [-initial_equity - loan_arrangement_fee]
 cf_table = [{"Year": 0, "Revenue (USD)": 0, "Opex (USD)": 0, "Loan Installment (USD)": 0, "Interest Payment (USD)": 0, "Remaining Loan (USD)": loan_amount, "Cash Flow (USD)": -initial_equity - loan_arrangement_fee, "Notes": "Equity + Loan Fee"}]
@@ -79,16 +79,20 @@ for year in range(1, investment_term + 1):
         earnings = earn_years_6_10 * 365
 
     opex_year = opex
-    loan_payment_year = annual_loan_payment if year <= loan_repayment_term else 0
-    interest_payment = remaining_loan * loan_interest_rate / 100 if year <= loan_repayment_term else 0
+
+    if year <= loan_repayment_term:
+        interest_payment = remaining_loan * loan_interest_rate / 100
+        loan_payment_year = principal_payment_per_year + interest_payment
+        remaining_loan -= principal_payment_per_year
+    else:
+        interest_payment = 0
+        loan_payment_year = 0
 
     net_cash = earnings - opex_year - loan_payment_year
     note = "Earnings - Opex"
 
     if loan_payment_year > 0:
         note += " - Loan Payment"
-        principal_payment = loan_payment_year - interest_payment
-        remaining_loan -= principal_payment
 
     if dd_year == year and dd_cost > 0:
         net_cash -= dd_cost
@@ -109,7 +113,7 @@ for year in range(1, investment_term + 1):
         "Opex (USD)": opex_year,
         "Loan Installment (USD)": loan_payment_year,
         "Interest Payment (USD)": interest_payment,
-        "Remaining Loan (USD)": remaining_loan,
+        "Remaining Loan (USD)": max(remaining_loan, 0),
         "Cash Flow (USD)": net_cash,
         "Notes": note
     })
